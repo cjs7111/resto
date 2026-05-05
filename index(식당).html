@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>🍜 감성식당 - 운영 웹게임</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            background: linear-gradient(145deg, #2b5e3b 0%, #1d3e2a 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', 'Poppins', 'Noto Sans KR', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .game-container {
+            max-width: 1300px;
+            width: 100%;
+            background: #fef7e0;
+            border-radius: 80px 80px 60px 60px;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.4), inset 0 1px 4px rgba(255, 255, 200, 0.8);
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+
+        .restaurant-header {
+            background: #fff3e0;
+            padding: 20px 30px;
+            border-bottom: 5px solid #ffb347;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            background-image: radial-gradient(circle at 10% 30%, rgba(255,215,150,0.2) 2%, transparent 2.5%);
+            background-size: 28px 28px;
+        }
+
+        .title-area h1 {
+            margin: 0;
+            font-size: 1.9rem;
+            background: linear-gradient(135deg, #c47e2e, #e09d42);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: -0.5px;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .title-area p {
+            margin: 5px 0 0;
+            font-size: 0.8rem;
+            color: #b97f3a;
+            font-weight: bold;
+        }
+
+        .stats {
+            display: flex;
+            gap: 18px;
+            flex-wrap: wrap;
+            background: #ffffffcc;
+            padding: 8px 20px;
+            border-radius: 60px;
+            backdrop-filter: blur(4px);
+        }
+
+        .stat-card {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: white;
+            padding: 6px 18px;
+            border-radius: 50px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            font-weight: bold;
+        }
+
+        .stat-card span:first-child {
+            font-size: 1.3rem;
+        }
+
+        .stat-card .value {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #d2691e;
+            line-height: 1;
+        }
+
+        .warning {
+            animation: shakeWarn 0.3s ease-in-out 0s 2;
+            background-color: #ffcccc !important;
+        }
+
+        @keyframes shakeWarn {
+            0% { transform: translateX(0);}
+            25% { transform: translateX(-4px);}
+            75% { transform: translateX(4px);}
+            100% { transform: translateX(0);}
+        }
+
+        .game-main {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 25px 25px 20px;
+            gap: 25px;
+        }
+
+        .order-area {
+            flex: 2;
+            min-width: 260px;
+            background: #faf0dc;
+            border-radius: 48px;
+            padding: 20px;
+            box-shadow: inset 0 1px 5px #e9dbbc, 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            border-left: 12px solid #ff8c42;
+            padding-left: 16px;
+            margin: 0 0 20px 0;
+            color: #5d3a1a;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .customer-list {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            max-height: 380px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .customer-card {
+            background: white;
+            border-radius: 56px;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+            transition: 0.1s linear;
+            border: 1px solid #ffe1b3;
+        }
+
+        .customer-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .customer-emoji {
+            font-size: 2.4rem;
+            background: #fee2c5;
+            width: 58px;
+            height: 58px;
+            border-radius: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .order-detail h4 {
+            margin: 0;
+            font-size: 1rem;
+        }
+
+        .order-detail p {
+            margin: 4px 0 0;
+            font-weight: bold;
+            color: #c25d00;
+        }
+
+        .cook-btn {
+            background: #ffaa44;
+            border: none;
+            font-size: 1.2rem;
+            font-weight: bold;
+            padding: 10px 26px;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: 0.05s linear;
+            box-shadow: 0 4px 0 #b4621a;
+            color: #422b0e;
+            font-family: inherit;
+        }
+        .cook-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 #b4621a;
+        }
+        .cook-btn:disabled {
+            opacity: 0.5;
+            transform: none;
+            cursor: not-allowed;
+        }
+
+        .kitchen-area {
+            flex: 1.5;
+            min-width: 260px;
+            background: #f5e7d3;
+            border-radius: 48px;
+            padding: 20px;
+            box-shadow: inset 0 1px 5px #fff2e0, 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .cooking-queue {
+            background: #e7d2b5;
+            border-radius: 38px;
+            padding: 18px;
+            margin-top: 15px;
+            min-height: 220px;
+        }
+
+        .queue-item {
+            background: #fff7e8;
+            border-radius: 60px;
+            padding: 12px 18px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            border-left: 12px solid #f39c12;
+        }
+
+        .complete-btn {
+            background: #27ae60;
+            border: none;
+            color: white;
+            padding: 6px 18px;
+            border-radius: 60px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.08s linear;
+            font-family: inherit;
+        }
+        .complete-btn:active {
+            transform: scale(0.96);
+        }
+        .complete-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .empty-queue {
+            text-align: center;
+            color: #9e7a56;
+            padding: 30px 10px;
+            font-style: italic;
+        }
+
+        .upgrade-shop {
+            margin-top: 25px;
+            background: #ffe0b5;
+            border-radius: 38px;
+            padding: 15px;
+            text-align: center;
+        }
+        .upgrade-btn {
+            background: #6f4e2e;
+            color: #ffefcf;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 32px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 8px 5px;
+            font-family: inherit;
+            transition: 0.05s linear;
+        }
+        .upgrade-btn:active {
+            transform: scale(0.97);
+        }
+
+        .footer-info {
+            background: #d9c2a7;
+            text-align: center;
+            padding: 14px;
+            font-weight: 500;
+            color: #2d2b26;
+            font-size: 0.8rem;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        @media (max-width: 780px) {
+            .stats { gap: 8px; }
+            .stat-card { padding: 3px 12px; }
+            .stat-card .value { font-size: 1.3rem; }
+            .cook-btn { padding: 6px 16px; font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="game-container">
+    <div class="restaurant-header">
+        <div class="title-area">
+            <h1>🍳 감성식당 운영하기</h1>
+            <p>✨ 요리해서 손님을 행복하게! ✨</p>
+        </div>
+        <div class="stats">
+            <div class="stat-card"><span>💰</span><span class="value" id="moneyValue">5000</span><span>원</span></div>
+            <div class="stat-card"><span>🍚</span><span class="value" id="riceValue">20</span><span>인분</span></div>
+            <div class="stat-card"><span>🥩</span><span class="value" id="meatValue">15</span><span>kg</span></div>
+        </div>
+    </div>
+
+    <div class="game-main">
+        <div class="order-area">
+            <div class="section-title">
+                🧑‍🍳 대기 중인 손님
+                <span style="font-size: 0.9rem;">👥 <span id="customerCount">0</span></span>
+            </div>
+            <div class="customer-list" id="customerList">
+                <div style="text-align:center; padding:20px; color:#b98f62;">👋 주문을 기다리는 손님이 없어요~</div>
+            </div>
+        </div>
+
+        <div class="kitchen-area">
+            <div class="section-title" style="border-left-color:#e67e22;">👨‍🍳 내 주방 (조리 중)</div>
+            <div class="cooking-queue" id="cookingQueueContainer">
+                <div class="empty-queue">🍳 조리중인 요리가 없습니다.<br>손님 주문을 받아보세요!</div>
+            </div>
+
+            <div class="upgrade-shop">
+                <div>📈 업그레이드로 더 많은 손님 & 빠른 요리!</div>
+                <button class="upgrade-btn" id="upgradeSeatBtn">🪑 자리 늘리기 (₩3000) +1명</button>
+                <button class="upgrade-btn" id="upgradeSpeedBtn">⚡ 빠른 조리 (₩4000) 속도 +25%</button>
+                <button class="upgrade-btn" id="restockBtn">📦 재고 보충 (₩800) 쌀+5, 고기+4</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-info">
+        <span>🔥 요리 성공시 +400~700원</span>
+        <span>⏱️ 조리시간 (레벨 영향)</span>
+        <span>🏆 레벨: <strong id="cookSpeedLv">1</strong> (속도 보너스)</span>
+    </div>
+</div>
+
+<script>
+    // ---------- 게임 상태 ----------
+    let money = 5000;
+    let rice = 20;
+    let meat = 15;
+
+    let customers = [];
+    let nextCustomerId = 100;
+
+    let cookingQueue = []; 
+
+    let maxSeat = 2;
+    let cookSpeedLevel = 1;
+    
+    // 타이머 ID 저장용
+    let activeQueueIntervals = new Map(); 
+
+    // DOM
+    const moneySpan = document.getElementById('moneyValue');
+    const riceSpan = document.getElementById('riceValue');
+    const meatSpan = document.getElementById('meatValue');
+    const customerListDiv = document.getElementById('customerList');
+    const cookingQueueDiv = document.getElementById('cookingQueueContainer');
+    const customerCountSpan = document.getElementById('customerCount');
+    const cookSpeedLvSpan = document.getElementById('cookSpeedLv');
+
+    // 유틸: 돈/재료 갱신 및 하이라이트
+    function refreshUI() {
+        moneySpan.innerText = Math.floor(money);
+        riceSpan.innerText = rice;
+        meatSpan.innerText = meat;
+        customerCountSpan.innerText = customers.length;
+        cookSpeedLvSpan.innerText = cookSpeedLevel;
+        renderCustomers();
+        renderCookingQueue();
+    }
+
+    function getCustomerEmoji(dish) {
+        if (dish.includes('불고기')) return '🥩';
+        if (dish.includes('김치')) return '🥬';
+        if (dish.includes('된장')) return '🍲';
+        return '🍚';
+    }
+
+    // 손님 목록 렌더링 + 버튼 이벤트 직접 바인딩 (이벤트 위임으로 변경하여 버튼 클릭 문제 해결)
+    function renderCustomers() {
+        if (customers.length === 0) {
+            customerListDiv.innerHTML = `<div style="text-align:center; padding:20px; color:#b98f62;">🍽️ 새로운 손님이 올 때까지 기다려요~</div>`;
+            return;
+        }
+        customerListDiv.innerHTML = customers.map(cust => `
+            <div class="customer-card" data-customer-id="${cust.id}">
+                <div class="customer-info">
+                    <div class="customer-emoji">${getCustomerEmoji(cust.dishName)}</div>
+                    <div class="order-detail">
+                        <h4>📋 주문: ${cust.dishName}</h4>
+                        <p>🍚쌀 ${cust.needRice} + 🥩고기 ${cust.needMeat}  |  보상 💰${cust.reward}</p>
+                    </div>
+                </div>
+                <button class="cook-btn" data-id="${cust.id}">👩‍🍳 요리 시작</button>
+            </div>
+        `).join('');
+        // 중요: 이벤트는 상위 위임으로 처리하므로 여기서 일일히 바인딩하지 않음 -> customerListDiv에 이벤트리스너 추가
+    }
+
+    // 조리 큐 렌더링 (완성버튼 위임)
+    function renderCookingQueue() {
+        if (cookingQueue.length === 0) {
+            cookingQueueDiv.innerHTML = `<div class="empty-queue">🍳 조리중인 요리가 없습니다.<br>손님 주문을 받아보세요!</div>`;
+            return;
+        }
+        cookingQueueDiv.innerHTML = cookingQueue.map((item, idx) => {
+            let remainSec = (item.remainingTime / 1000).toFixed(1);
+            return `
+                <div class="queue-item" data-queue-idx="${idx}" data-cust-id="${item.custId}">
+                    <span>🍲 ${item.dishName} (조리중) ⏱️ ${remainSec}초</span>
+                    <button class="complete-btn" data-queueid="${item.custId}">✅ 완성</button>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // 요리시간 계산
+    function getCookingTimeMs() {
+        let base = 3000;
+        let speedMulti = 1 + (cookSpeedLevel - 1) * 0.25;
+        let finalMs = base / speedMulti;
+        return Math.max(800, Math.floor(finalMs));
+    }
+
+    // 특정 조리 아이템에 대한 타이머 시작 (인터벌)
+    function startTimerForQueueItem(item) {
+        if (item.timerInterval) clearInterval(item.timerInterval);
+        item.startTime = Date.now();
+        item.remainingTime = item.totalTime;
+        
+        const interval = setInterval(() => {
+            if (!item.remainingTime || item.remainingTime <= 0) {
+                if (item.timerInterval) clearInterval(item.timerInterval);
+                item.timerInterval = null;
+                // 시간이 0 이하가 되면 UI 갱신만 (버튼 활성화를 위해)
+                if (item.remainingTime !== 0) item.remainingTime = 0;
+                renderCookingQueue();
+                return;
+            }
+            const now = Date.now();
+            const elapsed = now - item.startTime;
+            let remain = item.totalTime - elapsed;
+            if (remain <= 0) {
+                remain = 0;
+                if (item.timerInterval) clearInterval(item.timerInterval);
+                item.timerInterval = null;
+            }
+            item.remainingTime = remain;
+            renderCookingQueue();
+        }, 100);
+        item.timerInterval = interval;
+    }
+
+    // 요리 시작 (핵심 로직)
+    function startCooking(customer) {
+        // 재료 체크
+        if (rice < customer.needRice || meat < customer.needMeat) {
+            alert(`🍚 재료가 부족합니다! 쌀 ${customer.needRice}필요, 고기 ${customer.needMeat}필요\n업그레이드 > 재고 보충을 이용하세요.`);
+            return false;
+        }
+        // 재료 차감
+        rice -= customer.needRice;
+        meat -= customer.needMeat;
+        
+        // 손님 배열에서 제거 (반드시 먼저 제거해야 중복 클릭 방지)
+        const custIndex = customers.findIndex(c => c.id === customer.id);
+        if (custIndex === -1) {
+            // 이미 다른 요청에서 처리됨
+            return false;
+        }
+        customers.splice(custIndex, 1);
+        
+        // 조리 큐에 추가
+        const cookTime = getCookingTimeMs();
+        const newItem = {
+            custId: customer.id,
+            dishName: customer.dishName,
+            needRice: customer.needRice,
+            needMeat: customer.needMeat,
+            reward: customer.reward,
+            totalTime: cookTime,
+            remainingTime: cookTime,
+            startTime: null,
+            timerInterval: null,
+        };
+        cookingQueue.push(newItem);
+        startTimerForQueueItem(newItem);
+        
+        // UI 갱신
+        refreshUI();
+        
+        // 빈자리가 있으면 손님 추가 시도
+        spawnCustomerIfSpace();
+        return true;
+    }
+    
+    // 요리 완성
+    function completeCooking(customerId) {
+        const queueIndex = cookingQueue.findIndex(q => q.custId === customerId);
+        if (queueIndex === -1) return;
+        
+        const cooked = cookingQueue[queueIndex];
+        // 시간 체크 (0보다 크면 아직 안됨)
+        if (cooked.remainingTime > 0) {
+            alert(`⏳ 아직 요리가 다 되지 않았습니다! (남은시간 ${(cooked.remainingTime/1000).toFixed(1)}초)`);
+            return;
+        }
+        
+        // 보상 지급
+        money += cooked.reward;
+        
+        // 타이머 정리
+        if (cooked.timerInterval) {
+            clearInterval(cooked.timerInterval);
+            cooked.timerInterval = null;
+        }
+        cookingQueue.splice(queueIndex, 1);
+        
+        refreshUI();
+        spawnCustomerIfSpace(); // 완성 후 새 손님
+    }
+    
+    // 랜덤 손님 생성
+    function generateRandomCustomer() {
+        const dishes = [
+            { name: "🍛 불고기 덮밥", rice: 2, meat: 2, reward: 580 },
+            { name: "🍲 된장찌개 정식", rice: 1, meat: 1, reward: 450 },
+            { name: "🥘 김치볶음밥", rice: 2, meat: 1, reward: 490 },
+            { name: "🍱 제육볶음", rice: 1, meat: 2, reward: 620 },
+            { name: "🍚 소고기 덮밥", rice: 2, meat: 2, reward: 700 }
+        ];
+        const idx = Math.floor(Math.random() * dishes.length);
+        const dish = dishes[idx];
+        return {
+            id: nextCustomerId++,
+            dishName: dish.name,
+            needRice: dish.rice,
+            needMeat: dish.meat,
+            reward: dish.reward
+        };
+    }
+    
+    // 스폰 로직 (최대 자리 수 만큼 채우기)
+    function spawnCustomerIfSpace() {
+        if (customers.length < maxSeat) {
+            // 한 번에 최대 2명까지 추가 기회 (재미를 위해)
+            let toAdd = Math.min(maxSeat - customers.length, 2);
+            for (let i = 0; i < toAdd; i++) {
+                if (Math.random() < 0.65) { // 65% 확률로 생성 -> 자연스럽게 채움
+                    customers.push(generateRandomCustomer());
+                }
+            }
+            // 추가로 완전히 빈자리가 없다면 더 생성
+            if (customers.length < maxSeat && Math.random() < 0.4) {
+                customers.push(generateRandomCustomer());
+            }
+            refreshUI();
+        }
+    }
+    
+    // 주기적 손님 스폰 루프
+    let spawnInterval = null;
+    function startSpawnLoop() {
+        if (spawnInterval) clearInterval(spawnInterval);
+        spawnInterval = setInterval(() => {
+            spawnCustomerIfSpace();
+        }, 4200);
+    }
+    
+    // 업그레이드
+    function upgradeSeats() {
+        let cost = 3000;
+        if (money >= cost) {
+            money -= cost;
+            maxSeat++;
+            alert(`🪑 자리 확장! 최대 대기 손님 수: ${maxSeat}명`);
+            refreshUI();
+            spawnCustomerIfSpace();
+        } else {
+            alert(`💰 돈이 부족합니다! (필요 ${cost}원)`);
+            highlightMissingMoney();
+        }
+    }
+    
+    function upgradeSpeed() {
+        let cost = 4000;
+        if (money >= cost) {
+            money -= cost;
+            cookSpeedLevel++;
+            alert(`⚡ 요리 속도 업그레이드! 레벨 ${cookSpeedLevel} (조리시간 단축)`);
+            refreshUI();
+            // 이미 조리중인 요리는 기존 시간 유지 (공정성)
+        } else {
+            alert(`💰 돈이 부족합니다! (필요 ${cost}원)`);
+            highlightMissingMoney();
+        }
+    }
+    
+    function restockIngredients() {
+        let cost = 800;
+        if (money >= cost) {
+            money -= cost;
+            rice += 5;
+            meat += 4;
+            refreshUI();
+        } else {
+            alert(`💰 재료 보충에 필요한 돈이 부족합니다! (800원)`);
+            highlightMissingMoney();
+        }
+    }
+    
+    function highlightMissingMoney() {
+        const moneyElem = document.getElementById('moneyValue');
+        moneyElem.parentElement.classList.add('warning');
+        setTimeout(() => {
+            moneyElem.parentElement.classList.remove('warning');
+        }, 400);
+    }
+    
+    // ---------- 이벤트 위임 (버튼 클릭 즉시 반응하도록 개선) ----------
+    function setupEventDelegation() {
+        // 손님 영역: 요리 시작 버튼 클릭 (customerListDiv 내부 .cook-btn)
+        customerListDiv.addEventListener('click', (e) => {
+            const btn = e.target.closest('.cook-btn');
+            if (!btn) return;
+            e.preventDefault();
+            e.stopPropagation();
+            const customerIdAttr = btn.getAttribute('data-id');
+            if (!customerIdAttr) return;
+            const customerId = parseInt(customerIdAttr);
+            // 해당 손님 찾기
+            const targetCustomer = customers.find(c => c.id === customerId);
+            if (targetCustomer) {
+                // 즉시 실행! 여러번 클릭 방지를 위해 startCooking 내부에서 customers에서 제거하므로 중복클릭 방지됨
+                startCooking(targetCustomer);
+            } else {
+                // 이미 주문이 처리된 경우 UI 동기화
+                refreshUI();
+            }
+        });
+        
+        // 조리 큐 영역: 완성 버튼 클릭 (cookingQueueDiv 내부 .complete-btn)
+        cookingQueueDiv.addEventListener('click', (e) => {
+            const btn = e.target.closest('.complete-btn');
+            if (!btn) return;
+            e.preventDefault();
+            e.stopPropagation();
+            const queueIdAttr = btn.getAttribute('data-queueid');
+            if (!queueIdAttr) return;
+            const custId = parseInt(queueIdAttr);
+            completeCooking(custId);
+        });
+    }
+    
+    // 초기화 및 게임 시작
+    function initGame() {
+        // 기존 타이머 정리
+        if (spawnInterval) clearInterval(spawnInterval);
+        cookingQueue.forEach(item => {
+            if (item.timerInterval) clearInterval(item.timerInterval);
+        });
+        cookingQueue = [];
+        customers = [];
+        money = 5000;
+        rice = 20;
+        meat = 15;
+        maxSeat = 2;
+        cookSpeedLevel = 1;
+        nextCustomerId = 200;
+        
+        // 초기 손님 2명 생성
+        for(let i=0; i<2; i++) {
+            customers.push(generateRandomCustomer());
+        }
+        refreshUI();
+        startSpawnLoop();
+    }
+    
+    // 버튼들 리스너
+    document.getElementById('upgradeSeatBtn').addEventListener('click', upgradeSeats);
+    document.getElementById('upgradeSpeedBtn').addEventListener('click', upgradeSpeed);
+    document.getElementById('restockBtn').addEventListener('click', restockIngredients);
+    
+    // 이벤트 위임 설정
+    setupEventDelegation();
+    
+    // 게임 시작
+    initGame();
+    
+    // 페이지 이탈 시 인터벌 정리
+    window.addEventListener('beforeunload', ()=>{
+        if(spawnInterval) clearInterval(spawnInterval);
+        cookingQueue.forEach(q => {
+            if(q.timerInterval) clearInterval(q.timerInterval);
+        });
+    });
+</script>
+</body>
+</html>
